@@ -347,7 +347,7 @@ h3{
   height:100%;
   width:0;
   background:#8ca747;
-  transition:width .2s
+  transition:none
 }
 .caution{
   font-size:.8rem;
@@ -515,3 +515,5 @@ footer{
 .guide .callout { background:#eef3e5; padding:18px; border-radius:12px; margin:24px 0; }
 
 @media(max-width:420px) { .samples>span { flex-basis:100%; } }
+
+.guide pre { white-space:pre-wrap; overflow-wrap:anywhere; }
