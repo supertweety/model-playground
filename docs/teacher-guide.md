@@ -5,9 +5,12 @@
 Start from the repository README commands. The verified reference environment is Python 3.10 on Apple Silicon with torch 2.7.1 / torchvision 0.22.1. Python 3.10–3.12 is the recommended range; install wheels appropriate to the OS. `pip check` verifies resolved dependency compatibility. On Linux, CPU-only PyTorch avoids a large CUDA installation:
 
 ```sh
-python -m pip install torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install --upgrade pip==25.1.1
+python -m pip install --no-deps torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -r python/requirements.txt
 ```
+
+The first Linux command downloads only the CPU torch/torchvision wheels; the following requirements install resolves their dependencies from PyPI. Run both commands.
 
 The website has no frontend build step. `python scripts/fetch_runtime.py` prepares the pinned JS, WASM, license and notices under ignored `website/vendor/ort/`. The downloader validates archive and license integrity. Run it when checking out a fresh copy. The site uses single-thread WASM so GitHub Pages does not need special cross-origin isolation headers.
 
