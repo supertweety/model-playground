@@ -1,0 +1,50 @@
+"""Shared preprocessing and checkpoint contract. Class indices never depend on folders."""
+from pathlib import Path
+import numpy as np
+from PIL import Image, ImageOps
+from pillow_heif import register_heif_opener
+import torch
+
+register_heif_opener()
+CONTRACT_VERSION = 'ox-gray64-v1'
+CLASSES = ['O', 'X']
+EXTENSIONS = {'.jpg', '.jpeg', '.png', '.heic', '.heif'}
+
+
+def load_image(path):
+    with Image.open(path) as im:
+        return ImageOps.exif_transpose(im).convert('RGBA')
+
+
+def preprocess_rgba(rgba):
+    rgba = np.asarray(rgba, dtype=np.uint8)
+    if rgba.ndim != 3 or rgba.shape[2] != 4 or not all(rgba.shape[:2]):
+        raise ValueError('Expected nonempty H×W×4 RGBA pixels')
+    h, w = rgba.shape[:2]
+    xs = np.floor((np.arange(64) + .5) * w / 64).astype(int)
+    ys = np.floor((np.arange(64) + .5) * h / 64).astype(int)
+    pixels = rgba[ys[:, None], xs[None, :]].astype(np.int32)
+    alpha = pixels[..., 3:4]
+    rgb = (pixels[..., :3] * alpha + 255 * (255 - alpha) + 127) // 255
+    gray = (299 * rgb[..., 0] + 587 * rgb[..., 1] + 114 * rgb[..., 2] + 500) // 1000
+    # Float64 operation followed by float32 matches JavaScript's Number -> Float32Array.
+    normalized = (gray.astype(np.float64) / 127.5 - 1).astype(np.float32)
+    return gray.astype(np.uint8), normalized[None, :, :]
+
+
+def preprocess(image):
+    return torch.from_numpy(preprocess_rgba(np.array(image.convert('RGBA')))[1])
+
+
+def device():
+    return torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
+
+
+def load_checkpoint(path, model):
+    checkpoint = torch.load(path, map_location='cpu', weights_only=True)
+    if checkpoint.get('contract_version') != CONTRACT_VERSION or checkpoint.get('classes') != CLASSES:
+        raise ValueError('Incompatible checkpoint preprocessing version or O/X class order. Retrain.')
+    if checkpoint.get('architecture') != model.ARCHITECTURE:
+        raise ValueError('Checkpoint architecture differs. Retrain after changing the network.')
+    model.load_state_dict(checkpoint['state_dict'])
+    return checkpoint
