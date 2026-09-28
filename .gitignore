@@ -11,3 +11,6 @@ checkpoints/
 artifacts/
 website/vendor/
 .DS_Store
+
+# The deliberately published synthetic-font starter is the sole model exception.
+!website/demo/basic-fonts.onnx

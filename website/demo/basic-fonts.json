@@ -1,0 +1,34 @@
+{
+  "description": "Teaching demo trained ONLY on synthetic printed uppercase O/X; not a handwriting or real-photo model.",
+  "fonts": [
+    "DejaVuSans.ttf",
+    "DejaVuSans-Bold.ttf",
+    "DejaVuSerif.ttf",
+    "DejaVuSerif-Bold.ttf",
+    "DejaVuSansMono.ttf"
+  ],
+  "train_count": 1600,
+  "validation_count": 320,
+  "test_count": 400,
+  "seed": 2026,
+  "split_seeds": [
+    10,
+    20,
+    30
+  ],
+  "epochs": 8,
+  "validation_accuracy": 1.0,
+  "synthetic_test_accuracy": 1.0,
+  "confusion_matrix_true_rows_O_X": [
+    [
+      200,
+      0
+    ],
+    [
+      0,
+      200
+    ]
+  ],
+  "evaluation_scope": "Independent random renders of the same font families; not held-out fonts or real photographs.",
+  "sha256": "a238cd19107e166e831a202e943e10ea3c015876eaf8a561c8ba4eedf463c526"
+}

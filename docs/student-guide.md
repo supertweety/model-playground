@@ -1,5 +1,7 @@
 # Student guide
 
+Try the [basic-font demo](https://supertweety.github.io/model-playground/) first if you want to rehearse the website without training. For your own network, follow the [reusable export-function tutorial](export-tutorial.md), then the [phone storage and transfer guide](phone-guide.md).
+
 ## 1. Collect a small pilot, then expand
 
 Start with perhaps 20–30 distinct drawings per class to check the entire workflow. An initial larger target is **200–500 distinct examples per class**. This is a starting point, not a guarantee of accuracy.

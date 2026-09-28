@@ -28,6 +28,8 @@ jobs:
           .venv/bin/python -m playwright install --with-deps chromium webkit
       - name: Prepare locally served runtime
         run: .venv/bin/python scripts/fetch_runtime.py
+      - name: Check reusable custom-model exporter
+        run: .venv/bin/python tests/export_helper.py
       - name: Compare Python and browsers; exercise UI
         run: .venv/bin/python tests/verify.py
       - name: Exercise training, prediction and export

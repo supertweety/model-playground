@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Export a PyTorch model and open its ONNX file on your phone."><meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'"><title>Export & phone guide · Model Playground</title><link rel="stylesheet" href="./style.css"><link rel="icon" href="./favicon.svg"></head>
+<body><header><a class="brand" href="./">← Model Playground</a></header><main class="guide">
+<p class="eyebrow">FROM PYTORCH TO YOUR PHONE</p><h1>Your model, ready to try.</h1><p>Export once, save the file, and select it in the playground. No upload or account is needed.</p>
+<div class="callout"><h2>Try it first</h2><p>Back in the playground, tap <strong>Try font demo</strong>. It loads a starter model and a printed O. Try the O/X sample buttons, then Run model.</p><p>The demo learned only synthetic printed letters in basic fonts. It may fail on handwriting and camera photos.</p><a href="./demo/basic-fonts.onnx" download="basic-fonts.onnx">Download demo .onnx</a> · <a href="./">Open playground</a></div>
+<h2>1. Export your PyTorch model</h2><p>In a notebook opened at the repository root, after training your network:</p>
+<pre><code>from python.playground_export import export_for_playground
+
+path = export_for_playground(
+    model, "artifacts/my-ox-v1.onnx"
+)</code></pre>
+<p>Your network must accept a grayscale 64×64 image and return two raw logits in <strong>O, X</strong> order. The helper checks the export and compares it with PyTorch. It leaves your original model unchanged.</p><p><a href="https://github.com/supertweety/model-playground/blob/main/docs/export-tutorial.md">Full tutorial: setup, custom networks, checkpoints & Colab</a></p>
+<h2>2. Save the .onnx file on your phone</h2>
+<h3>iPhone / iPad</h3><p>AirDrop the exported file from your Mac and save it to <strong>Files</strong>, or use your own iCloud Drive folder. For a Safari download, open Files → Browse → Downloads (often under iCloud Drive, depending on settings). A folder called <strong>Model Playground</strong> makes your models easy to find.</p>
+<h3>Android</h3><p>Download the model in Chrome, copy it over USB, or download a local copy from your own cloud storage. Look in <strong>Files / My Files → Downloads</strong>. You can keep it there or move it to a Model Playground folder.</p>
+<h3>Working in a notebook on your phone?</h3><p>Download the exported file from the notebook first. In Colab:</p>
+<pre><code>from google.colab import files
+files.download(str(path))</code></pre><p>A file path inside Colab is not yet a file in your phone’s Downloads folder.</p>
+<h2>3. Choose it in the playground</h2><ol><li>Return to <a href="./">Model Playground</a> and tap <strong>Choose model</strong>.</li><li>Browse to the saved <strong>.onnx</strong> file and wait for Ready.</li><li>Draw, choose/take a photo, or try a printed sample. Inspect the grayscale preview and tap <strong>Run model</strong>.</li></ol>
+<div class="callout"><strong>“Choose model” keeps the file on your device.</strong><p>Cloud transfers use your chosen provider. The playground itself does not upload or save student models. Refreshing clears the selection, but your saved file stays in Files/Downloads—just choose it again.</p></div>
+<details><summary>Can’t find or select the file?</summary><p>Download the actual .onnx, not a sharing link or preview page. Unzip archives first. A .pt checkpoint must be exported, not renamed. If a cloud file is unavailable, save a local copy. Try regular Safari/Chrome if an embedded chat browser limits downloads.</p><p>Models must be one file with embedded weights, up to 32 MiB. For photos, JPEG/PNG is the reliable fallback when HEIC will not open.</p></details>
+<p><a href="https://github.com/supertweety/model-playground/blob/main/docs/phone-guide.md">Detailed phone guide & transfer options</a> · <a href="https://github.com/supertweety/model-playground/blob/main/docs/student-guide.md">Training guide</a></p>
+</main><footer><a href="./">Back to playground</a><span>One image. Two classes. Your architecture.</span></footer></body></html>

@@ -499,3 +499,19 @@ footer{
 }
 
 }
+
+.getting-started { margin: -8px 0 24px; font-size: .875rem; }
+.getting-started>div { display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin-bottom:10px; }
+.getting-started p { margin:6px 0; max-width:780px; }
+.samples { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:16px; font-size:.85rem; }
+.samples select { font:inherit; padding:10px; min-height:44px; max-width:100%; border:1px solid var(--line); border-radius:8px; background:white; color:inherit; }
+.samples select:focus-visible { outline:3px solid #4b6922; outline-offset:3px; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.guide { max-width:850px; }
+.guide h2 { font-size:1.35rem; margin:28px 0 12px; }
+.guide h3 { margin:22px 0 8px; }
+.guide p,.guide li { margin-bottom:12px; }
+.guide pre { background:#eaf0e0; padding:18px; border-radius:8px; overflow:auto; font-size:.875rem; }
+.guide .callout { background:#eef3e5; padding:18px; border-radius:12px; margin:24px 0; }
+
+@media(max-width:420px) { .samples>span { flex-basis:100%; } }

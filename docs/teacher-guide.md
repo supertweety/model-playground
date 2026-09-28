@@ -22,6 +22,7 @@ Serve only `website/`, never the repository root. The website works at `/` and a
 python -m pip install -r tests/requirements.txt
 python -m playwright install chromium webkit
 python scripts/fetch_runtime.py
+python tests/export_helper.py
 python tests/verify.py
 python tests/training_smoke.py
 ```
@@ -47,7 +48,7 @@ Intended repository: **public `model-playground`**. The project does not require
    git push -u origin main
    ```
 
-   Inspect the staged files before committing: no data, model files, environments, generated artifacts or downloaded runtime binaries should be present. An existing destination causes repository creation to fail; never work around that by force-pushing.
+   Inspect the staged files before committing: no student data/models, environments, test artifacts or downloaded runtime binaries should be present. The explicitly published `website/demo/basic-fonts.onnx` is the only model exception. An existing destination causes repository creation to fail; never work around that by force-pushing.
 
 4. In GitHub **Settings → Pages → Build and deployment**, choose **GitHub Actions**. Alternatively, create the Pages configuration with `gh api --method POST repos/OWNER/model-playground/pages -f build_type=workflow` if Pages is not configured.
 5. Run **Deploy website** manually in Actions, or push a commit to `main`. The workflow verifies the implementation, downloads the pinned runtime, and uploads **only `website/`**. Set Pages before triggering the deploy run to avoid a configuration race on the initial push.
@@ -61,4 +62,8 @@ The app reads local files into memory, uses locally served runtime files, and ha
 
 Refresh clears state. Guaranteed offline startup is not implemented. Photos are limited to 40 MiB and 40 million decoded pixels to bound ordinary memory use; choose a smaller JPEG for very large phone photos. Model files are limited to 32 MiB, but computationally large models can still be slow or exceed device memory. The trial run cannot prove semantic class order, training quality, calibration or support for every possible input-dependent execution path.
 
-No photos/submissions are collected, no accounts are used, and no trained demo is supplied. This is a single-symbol O/X exercise, not a board detector or blank-cell classifier.
+No photos/submissions are collected, no accounts are used, and the optional demo is trained only on synthetic printed letters. This is a single-symbol O/X exercise, not a board detector or blank-cell classifier.
+
+## Starter demo and custom-model export
+
+Students can use **Try font demo** without a file transfer, or download its `.onnx` to practice their phone’s file picker. The five-font synthetic training source and evaluation scope are in [font-demo.md](font-demo.md). This is the only committed/published model; student models and test fixtures remain ignored. The [export tutorial](export-tutorial.md) supports arbitrary compatible `torch.nn.Module` architectures and hosted notebooks. The [phone guide](phone-guide.md) distinguishes private cloud transfer from local selection; no upload service has been added.

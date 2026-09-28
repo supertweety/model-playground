@@ -27,5 +27,9 @@ Reproduce with the commands in [README](../README.md). The detailed machine-read
 ## Not verified
 
 - Real iPhone/Android camera permissions, native file-picker behavior, HEIC decoding in mobile browsers, and actual phone memory/performance. Emulation does not establish these.
-- Recognition accuracy or calibration on a labeled real-photo dataset: none was supplied, and no trained demo is published.
+- Recognition accuracy or calibration on a labeled real-photo dataset: none was supplied. The optional published demo is trained only on synthetic fonts.
 - Every possible student architecture/operator, every browser version, or guaranteed offline startup. A successful trial inference is a compatibility check for that model and device, not a universal guarantee.
+
+## Font demo and export tutorial update
+
+The reusable exporter is checked with a different network architecture, including preservation of training mode/weights and preservation of an existing file after invalid export attempts. The browser suite checks the published demo on O/X in sans-serif, serif and monospace, downloads the actual model and selects it again, and checks its SHA-256 against the training report. The phone layout tests include the new demo controls. The original untrained fixtures remain outside the published website. See [the demo evaluation scope](font-demo.md) for synthetic-only accuracy.

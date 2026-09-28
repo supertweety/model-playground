@@ -61,15 +61,15 @@ function checkOutput(result) {
   }
   return softmax(result.logits.data);
 }
-$('model-file').addEventListener('change', async event => {
-  const file = event.target.files[0]; event.target.value = '';
-  if (!file) return;
+async function loadModel(readFile, label) {
   const generation = ++modelGeneration;
   const old = session; session = null; loading = true; invalidate(); controls();
-  status('model-status', `Checking ${file.name}…`);
+  status('model-status', `Checking ${label}…`);
   let candidate;
   try {
     await release(old);
+    const file = await readFile();
+    if (generation !== modelGeneration) return false;
     if (!file.name.toLowerCase().endsWith('.onnx')) throw new Error('Choose a .onnx file.');
     if (!file.size || file.size > 32 * 1024 * 1024) throw new Error('Choose a nonempty ONNX file up to 32 MB (32 MiB).');
     const buffer = await file.arrayBuffer();
@@ -82,12 +82,28 @@ $('model-file').addEventListener('change', async event => {
     try { checkOutput(trial); } finally { Object.values(trial).forEach(t => t.dispose()); }
     if (generation !== modelGeneration) return;
     session = candidate; candidate = null;
-    status('model-status', `${file.name} · Ready · O, X`);
+    status('model-status', `${label} · Ready · O, X`);
+    return true;
   } catch (error) {
     if (generation === modelGeneration) status('model-status', `Could not load model. ${error.message} Check the contract, embedded weights, and browser-supported operators; then choose another file.`, true);
   } finally {
     if (candidate) await candidate.release().catch(() => {});
     if (generation === modelGeneration) { loading = false; invalidate(); controls(); }
+  }
+}
+$('model-file').addEventListener('change', event => {
+  const file = event.target.files[0]; event.target.value = '';
+  if (file) void loadModel(() => file, file.name);
+});
+$('try-demo').addEventListener('click', async () => {
+  const ready = await loadModel(async () => {
+    const response = await fetch(new URL('./demo/basic-fonts.onnx', import.meta.url));
+    if (!response.ok) throw new Error('Demo download failed. Check your connection and try again.');
+    return new File([await response.arrayBuffer()], 'basic-fonts.onnx');
+  }, 'Basic-font demo (synthetic letters only)');
+  if (ready) {
+    sampleLetter('O'); $('run').click();
+    if (matchMedia('(max-width: 720px)').matches) $('output-title').closest('section').scrollIntoView({block: 'start'});
   }
 });
 $('reset-model').addEventListener('click', () => {
@@ -157,3 +173,15 @@ $('run').addEventListener('click', async () => {
   finally { tensor.dispose(); running = false; controls(); }
 });
 clearImage();
+
+function sampleLetter(letter) {
+  clearImage();
+  const font = $('sample-font').value;
+  ctx.fillStyle = '#111'; ctx.font = `320px ${font}`;
+  const metrics = ctx.measureText(letter);
+  ctx.fillText(letter, (512 - metrics.width) / 2, (512 + metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2);
+  updateInput(ctx.getImageData(0, 0, 512, 512).data, 512, 512);
+  photoMode = true; $('draw-mode').classList.remove('active'); $('draw-mode').setAttribute('aria-pressed', 'false');
+  status('image-status', `Printed ${letter} · ${font}. Select Run model to test.`);
+}
+for (const letter of ['O', 'X']) $('sample-' + letter.toLowerCase()).addEventListener('click', () => sampleLetter(letter));

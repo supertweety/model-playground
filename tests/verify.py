@@ -2,6 +2,7 @@
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -69,10 +70,12 @@ def model_file(name, shape=(1, 1, 64, 64), input_name='image', output_name='logi
 
 
 def main():
+    demo_report = json.loads((ROOT / 'website/demo/basic-fonts.json').read_text())
+    assert hashlib.sha256((ROOT / 'website/demo/basic-fonts.onnx').read_bytes()).hexdigest() == demo_report['sha256']
     torch.set_num_threads(1); torch.manual_seed(42)
     net = Net().eval()
     fixture = ART / 'UNTRAINED.onnx'
-    REPORT['export_max_abs_error'] = export_model(net, fixture)
+    export_model(net, fixture)
     passed('PyTorch vs ONNX on 8 inputs, atol=1e-5 rtol=1e-4')
     torch.manual_seed(73)
     second = ART / 'UNTRAINED-replacement.onnx'; export_model(Net().eval(), second)
@@ -209,6 +212,25 @@ def main():
                 wait_for(page, "() => document.querySelector('#model-status').textContent.includes('Ready')")
                 page.locator('#reset-model').click(); assert page.locator('#run').is_disabled()
                 passed(f'{engine_name}: drawing, photo selection, clear, invalid-image recovery, invalid-model recovery, replacement and remove')
+                page.locator('#try-demo').click()
+                wait_for(page, "() => document.querySelector('#run-status').textContent.includes('Complete')")
+                for font in ['sans-serif', 'serif', 'monospace']:
+                    page.locator('#sample-font').select_option(font)
+                    for letter in ['O', 'X']:
+                        page.locator('#sample-' + letter.lower()).click()
+                        assert page.locator('#prediction').inner_text() == '—'
+                        page.locator('#run').click()
+                        wait_for(page, "() => document.querySelector('#run-status').textContent.includes('Complete')")
+                        assert page.locator('#prediction').inner_text() == letter, (engine_name, font, letter)
+                with page.expect_download() as download:
+                    page.locator('a[download="basic-fonts.onnx"]').click()
+                downloaded = ART / f'{engine_name}-download.onnx'
+                download.value.save_as(downloaded)
+                assert downloaded.read_bytes() == (ROOT / 'website/demo/basic-fonts.onnx').read_bytes()
+                page.locator('#model-file').set_input_files(downloaded)
+                wait_for(page, "() => document.querySelector('#model-status').textContent.includes('Ready')")
+                passed(f'{engine_name}: demo inference on O/X in three browser font families, ONNX download and re-selection')
+                page.screenshot(path=str(ART / f'{engine_name}-demo-desktop.png'), full_page=True)
                 page.reload(); assert page.locator('#run').is_disabled()
                 assert page.locator('#drawing-hint').is_visible()
                 assert page.evaluate('localStorage.length + sessionStorage.length') == 0
@@ -222,6 +244,7 @@ def main():
                 assert phone.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 phone.locator('#model-file').set_input_files(fixture)
                 wait_for(phone, "() => document.querySelector('#model-status').textContent.includes('Ready')", timeout=90000)
+                phone.locator('#drawing').scroll_into_view_if_needed()
                 b = phone.locator('#drawing').bounding_box()
                 phone.touchscreen.tap(b['x'] + b['width']/2, b['y'] + b['height']/2)
                 assert phone.locator('#run').is_enabled()
@@ -231,16 +254,24 @@ def main():
                 phone.locator('#camera-file').set_input_files(ART / 'symbol.png')
                 wait_for(phone, "() => document.querySelector('#image-status').textContent.includes('137 × 91')")
                 phone.locator('#clear').click(); assert phone.locator('#run').is_disabled()
+                phone.locator('#try-demo').click()
+                wait_for(phone, "() => document.querySelector('#run-status').textContent.includes('Complete')")
+                assert phone.locator('#prediction').inner_text() == 'O'
+                phone.screenshot(path=str(ART / f'{engine_name}-demo-mobile.png'), full_page=True)
                 phone.set_viewport_size({'width':320,'height':740})
                 assert phone.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 phone.evaluate("document.documentElement.style.fontSize='200%'")
                 # At enlarged text, content should reflow with no page-level horizontal scroll.
                 assert phone.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 passed(f'{engine_name}: 390/320px phone emulation, touch, camera input selection, and 200% text reflow')
+                phone.goto(base + 'guide.html')
+                assert phone.locator('h1').inner_text() == 'Your model, ready to try.'
+                assert phone.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                phone.screenshot(path=str(ART / f'{engine_name}-guide-mobile.png'), full_page=True)
                 browser.close()
     finally:
         server.shutdown()
-    REPORT['unverified'] = ['Real phone hardware camera/file picker', 'Recognition accuracy: no labeled dataset or trained model supplied']
+    REPORT['unverified'] = ['Real phone hardware camera/file picker', 'Real-photo recognition accuracy; the demo uses synthetic fonts only']
     (ART / 'report.json').write_text(json.dumps(REPORT, indent=2) + '\n')
     print(f'Report: {ART / "report.json"}')
 

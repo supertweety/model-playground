@@ -2,7 +2,7 @@
 
 A shared, static website for students to test their own PyTorch models on **one handwritten O or X**. Models, drawings, and photos stay in browser memory. No accounts, uploads, analytics, backend, or student submissions.
 
-No trained model or labeled dataset is included. Automated checks create explicitly **UNTRAINED** fixtures under ignored `artifacts/`; these are never published.
+A small **synthetic-font demo** is included: tap **Try font demo** on the [live site](https://supertweety.github.io/model-playground/), then try the printed O/X samples. It is trained only on rendered letters, not handwriting or camera photos. No labeled real-photo dataset is included. Automated checks create explicitly **UNTRAINED** fixtures under ignored `artifacts/`; these are never published.
 
 ## Start locally
 
@@ -20,6 +20,15 @@ python -m http.server 8000 --bind 127.0.0.1 --directory website
 Open <http://localhost:8000>. Keep the server running. Do not open `index.html` using `file://`. On Windows, activate with `.venv\Scripts\activate` and use `python` in place of `python3`.
 
 Choose a local ONNX model, draw a symbol or choose/take a photo, inspect the processed input, then select **Run model**. Refreshing discards selected files. JPEG/PNG is the reliable browser photo fallback.
+
+## Export your own network
+
+```python
+from python.playground_export import export_for_playground
+path = export_for_playground(model, "artifacts/my-ox-v1.onnx")
+```
+
+Start with the [export tutorial](docs/export-tutorial.md) and [phone transfer guide](docs/phone-guide.md). The website also has a short [export & phone walkthrough](https://supertweety.github.io/model-playground/guide.html).
 
 ## Train and export
 
@@ -63,6 +72,7 @@ ONNX Runtime Web **1.22.0** is downloaded with a pinned SHA-512 checksum. Its ma
 python -m pip install -r tests/requirements.txt
 python -m playwright install chromium webkit
 python scripts/fetch_runtime.py
+python tests/export_helper.py
 python tests/verify.py
 python tests/training_smoke.py
 ```
@@ -75,3 +85,7 @@ The integration suite serves the website under `/model-playground/`, compares ex
 The intended public repository is `model-playground`. The workflow publishes only `website/` to GitHub Pages after verification. In GitHub **Settings → Pages → Build and deployment**, select **GitHub Actions**. See the [teacher guide](docs/teacher-guide.md) for the complete safe publication procedure.
 
 This first exercise does not detect boards, blank cells, multiple symbols or arbitrary class lists. High class scores do not guarantee correctness; unrelated inputs still receive O/X scores.
+
+## Rebuild the font demo
+
+Run `python python/build_font_demo.py` in the configured environment. It trains a seeded CNN on generated DejaVu letters, selects by validation accuracy, evaluates independent renders, and exports `website/demo/basic-fonts.onnx`. The adjacent JSON records its scope, metrics and SHA-256. See [demo details](docs/font-demo.md). Only this explicitly published demo model is exempt from the model-file Git ignore rule.
