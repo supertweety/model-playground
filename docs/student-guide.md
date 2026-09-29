@@ -1,6 +1,8 @@
 # Student guide
 
-Try the [basic-font demo](https://supertweety.github.io/model-playground/) first if you want to rehearse the website without training. For your own network, follow the [reusable export-function tutorial](export-tutorial.md), then the [phone storage and transfer guide](phone-guide.md).
+Open the [live Model Playground](https://supertweety.github.io/model-playground/) on your phone or computer. The website is ready to use; there is nothing to install or serve locally. Tap **Try font demo** for a first run.
+
+For the assignment, train your network in Python, [export it to ONNX](export-tutorial.md), then select that file in the live app. The [phone guide](phone-guide.md) explains how to transfer and find it.
 
 ## 1. Collect a small pilot, then expand
 
@@ -12,9 +14,22 @@ Several photographs of one physical drawing are not independent examples. Assign
 
 Aim for **70% training, 15% validation, 15% test** while respecting groups and representing both classes in every split. Do not randomly split individual files from the same group. Keep the test set untouched until your final evaluation; use validation for tuning. If you tune after seeing test results, you need a fresh held-out test set.
 
-## 2. Prepare your environment and data
+## 2. Prepare your Python training environment and data
 
-Follow the environment commands in [README](../README.md). The versions are pinned and must be installed inside `.venv`; do not mix these with another course's environment. Then:
+Use your teacher's Python notebook/environment if one is provided. For Colab or another hosted notebook, follow the [notebook setup](export-tutorial.md#google-colab-or-another-hosted-notebook). Python setup is for training and exporting; use the live app for browser testing.
+
+If you want to run the Python example on your own computer, download this repository (GitHub **Code → Download ZIP**, then extract it) or clone it. Open a terminal in its root folder. Use Python 3.10–3.12 (verified with 3.10 on Apple Silicon):
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r python/requirements.txt
+python -m pip check
+```
+
+On Windows, use `python` instead of `python3` and activate with `.venv\Scripts\activate`. Keep the pinned dependencies in this isolated environment. No runtime download or web server is required.
+
+With the training environment ready, run from the repository root:
 
 ```sh
 python python/setup_data.py
@@ -58,7 +73,7 @@ Transfer `artifacts/model.onnx` to your phone using a method you choose, such as
 
 ## 5. Use Model Playground
 
-1. Open the teacher's Model Playground URL.
+1. Open [the live Model Playground](https://supertweety.github.io/model-playground/).
 2. Choose your local `.onnx` file and wait for **Ready**.
 3. Draw an O or X, choose a photo, or use **Take photo**. The phone/browser decides how its camera picker opens.
 4. Inspect **What your model sees**. This 64×64 grayscale image is the actual input.

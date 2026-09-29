@@ -1,8 +1,21 @@
 # Teacher setup guide
 
-## Local setup
+## Share the live app with students
 
-Start from the repository README commands. The verified reference environment is Python 3.10 on Apple Silicon with torch 2.7.1 / torchvision 0.22.1. Python 3.10–3.12 is the recommended range; install wheels appropriate to the OS. `pip check` verifies resolved dependency compatibility. On Linux, CPU-only PyTorch avoids a large CUDA installation:
+Give students the [live playground URL](https://supertweety.github.io/model-playground/) and the [student guide](student-guide.md). They can test their exported models without installing or serving the website. Python setup belongs to the training/export part of the assignment.
+
+## Optional: run the website locally
+
+For teachers/developers modifying the website, open a terminal in the repository root and run:
+
+```sh
+python3 scripts/fetch_runtime.py
+python3 -m http.server 8000 --bind 127.0.0.1 --directory website
+```
+
+Open <http://localhost:8000> and keep the server running. Use `python` on Windows. Do not open `index.html` through `file://`. Serving the website needs only Python's standard library; PyTorch is not required.
+
+For training or automated verification, use the [Python environment setup](student-guide.md#2-prepare-your-python-training-environment-and-data). The verified reference environment is Python 3.10 on Apple Silicon with torch 2.7.1 / torchvision 0.22.1. Python 3.10–3.12 is the recommended range; install wheels appropriate to the OS. `pip check` verifies resolved dependency compatibility. On Linux, CPU-only PyTorch avoids a large CUDA installation:
 
 ```sh
 python -m pip install --upgrade pip==25.1.1
@@ -66,4 +79,4 @@ No photos/submissions are collected, no accounts are used, and the optional demo
 
 ## Starter demo and custom-model export
 
-Students can use **Try font demo** without a file transfer, or download its `.onnx` to practice their phone’s file picker. The five-font synthetic training source and evaluation scope are in [font-demo.md](font-demo.md). This is the only committed/published model; student models and test fixtures remain ignored. The [export tutorial](export-tutorial.md) supports arbitrary compatible `torch.nn.Module` architectures and hosted notebooks. The [phone guide](phone-guide.md) distinguishes private cloud transfer from local selection; no upload service has been added.
+Students can use **Try font demo** without a file transfer, or download its `.onnx` to practice their phone’s file picker. The five-font synthetic evaluation scope is in [font-demo.md](font-demo.md); the private demo-training source is intentionally excluded. This is the only committed/published model; student models and test fixtures remain ignored. The [export tutorial](export-tutorial.md) supports arbitrary compatible `torch.nn.Module` architectures and hosted notebooks. The [phone guide](phone-guide.md) distinguishes private cloud transfer from local selection; no upload service has been added.

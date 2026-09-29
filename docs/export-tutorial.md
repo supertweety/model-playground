@@ -2,9 +2,11 @@
 
 The file format is **ONNX** (`.onnx`). A `.pt` checkpoint cannot be selected directly on the website; renaming it does not convert it.
 
+After exporting, select your file in the [live Model Playground](https://supertweety.github.io/model-playground/). Python is needed for this export step; running the website locally is not required.
+
 ## Fastest route: the course example
 
-From the repository root, with the environment in [README](../README.md) activated:
+From the repository root, with your [Python training environment](student-guide.md#2-prepare-your-python-training-environment-and-data) activated:
 
 ```sh
 python python/export.py --checkpoint checkpoints/best.pt --output artifacts/my-ox-v1.onnx
