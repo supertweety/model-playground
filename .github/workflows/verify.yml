@@ -22,7 +22,7 @@ jobs:
         run: |
           python -m venv .venv
           .venv/bin/python -m pip install --upgrade pip==25.1.1
-          .venv/bin/python -m pip install --no-deps torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cpu
+          .venv/bin/python -m pip install --no-deps torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
           .venv/bin/python -m pip install -r python/requirements.txt -r tests/requirements.txt
           .venv/bin/python -m pip check
           .venv/bin/python -m playwright install --with-deps chromium webkit
@@ -32,8 +32,6 @@ jobs:
         run: .venv/bin/python tests/export_helper.py
       - name: Compare Python and browsers; exercise UI
         run: .venv/bin/python tests/verify.py
-      - name: Exercise training, prediction and export
-        run: .venv/bin/python tests/training_smoke.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:

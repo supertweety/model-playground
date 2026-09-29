@@ -4,7 +4,6 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 import hashlib
 from pathlib import Path
-import subprocess
 import sys
 from threading import Thread
 import numpy as np
@@ -17,9 +16,14 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'python'))
-from common import preprocess_rgba, load_image, CONTRACT_VERSION, CLASSES, load_checkpoint
-from model import Net
-from export import export_model
+from common import preprocess_rgba, load_image
+from playground_export import export_for_playground
+
+
+def inference_fixture():
+    # Random projection solely for export/inference checks. Never trained or
+    # offered as an assignment architecture; no training code is needed here.
+    return torch.nn.Sequential(torch.nn.Flatten(), torch.nn.Linear(4096, 2)).eval()
 
 ART = ROOT / 'artifacts' / 'verification'
 ART.mkdir(parents=True, exist_ok=True)
@@ -73,22 +77,12 @@ def main():
     demo_report = json.loads((ROOT / 'website/demo/basic-fonts.json').read_text())
     assert hashlib.sha256((ROOT / 'website/demo/basic-fonts.onnx').read_bytes()).hexdigest() == demo_report['sha256']
     torch.set_num_threads(1); torch.manual_seed(42)
-    net = Net().eval()
+    net = inference_fixture()
     fixture = ART / 'UNTRAINED.onnx'
-    export_model(net, fixture)
+    export_for_playground(net, fixture)
     passed('PyTorch vs ONNX on 8 inputs, atol=1e-5 rtol=1e-4')
     torch.manual_seed(73)
-    second = ART / 'UNTRAINED-replacement.onnx'; export_model(Net().eval(), second)
-    checkpoint = {'state_dict': net.state_dict(), 'classes': CLASSES, 'contract_version': CONTRACT_VERSION, 'architecture': Net.ARCHITECTURE}
-    torch.save(checkpoint, ART / 'UNTRAINED.pt'); load_checkpoint(ART / 'UNTRAINED.pt', Net())
-    for field, value in [('classes', ['X', 'O']), ('contract_version', 'unknown'), ('architecture', 'changed')]:
-        bad = dict(checkpoint); bad[field] = value; torch.save(bad, ART / 'bad.pt')
-        try:
-            load_checkpoint(ART / 'bad.pt', Net())
-            raise AssertionError('Bad checkpoint was accepted')
-        except ValueError:
-            pass
-    passed('Checkpoint version, class order and architecture incompatibility detection')
+    second = ART / 'UNTRAINED-replacement.onnx'; export_for_playground(inference_fixture(), second)
     image = Image.new('RGB', (137, 91), 'white')
     ImageDraw.Draw(image).line((25, 15, 112, 76), fill='black', width=12)
     ImageDraw.Draw(image).line((112, 15, 25, 76), fill='black', width=12)

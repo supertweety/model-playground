@@ -4,15 +4,26 @@ The file format is **ONNX** (`.onnx`). A `.pt` checkpoint cannot be selected dir
 
 After exporting, select your file in the [live Model Playground](https://supertweety.github.io/model-playground/). Python is needed for this export step; running the website locally is not required.
 
-## Fastest route: the course example
+## Export setup
 
-From the repository root, with your [Python training environment](student-guide.md#2-prepare-your-python-training-environment-and-data) activated:
+Bring the model you built in class. No example architecture or training scripts are included here.
+
+Download this repository, or copy `python/playground_export.py` into your own project. Install the dependencies in the Python environment where your model is loaded:
 
 ```sh
-python python/export.py --checkpoint checkpoints/best.pt --output artifacts/my-ox-v1.onnx
+python -m pip install -r python/requirements.txt
 ```
 
-This loads the network from `python/model.py`. For your own model already in memory, use the function below instead.
+The pinned requirements describe the verified export environment (Python 3.10–3.12, PyTorch 2.7.1). Use an isolated environment if these versions differ from your course environment. A fresh export environment can be created with:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r python/requirements.txt
+python -m pip check
+```
+
+On Windows, use `python` instead of `python3` and activate with `.venv\Scripts\activate`. Load your own architecture and saved weights in that environment before calling the helper. No web server is needed. For a hosted notebook, see [Colab setup](#google-colab-or-another-hosted-notebook) below.
 
 ## 1. Check your model's promise
 

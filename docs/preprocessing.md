@@ -18,12 +18,12 @@ Identical RGBA arrays must produce identical grayscale and float32 arrays. Brows
 
 The site reads ONNX protobuf metadata locally, checks exact names, element types and fixed shapes, and rejects external tensor data (including nested graphs). It then creates an ONNX Runtime Web WASM session and runs trial inference, validating finite float32 `[1,2]` output. Invalid files leave the app ready to choose another model. Model buffers are never used as URLs.
 
-Class order is a semantic promise: neither valid tensor names nor a successful trial can prove that output 0 means O. Checkpoints include `contract_version`, `classes` and `architecture`; Python refuses incompatible checkpoints. Model file metadata is helpful for inspection, but the website does not require architecture-specific metadata so other networks remain usable.
+Class order is a semantic promise: neither valid tensor names nor a successful trial can prove that output 0 means O. Students load their own network and weights; the exporter accepts the instantiated model without imposing a checkpoint format. Export metadata records `ox-gray64-v1` and O,X order. The website does not require architecture-specific metadata so other networks remain usable.
 
 ## Runtime and export references
 
 - [ONNX Runtime Web](https://onnxruntime.ai/docs/get-started/with-javascript/web.html)
 - [Runtime flags, WASM paths and session options](https://onnxruntime.ai/docs/tutorials/web/env-flags-and-session-options.html)
-- [PyTorch previous versions / matching torchvision releases](https://docs.pytorch.org/get-started/previous-versions/)
+- [PyTorch previous versions](https://docs.pytorch.org/get-started/previous-versions/)
 
-The example exports opset 18 with the explicitly selected legacy exporter (`dynamo=False`). This avoids external weight files and provides a small plain inference graph for this teaching example. ONNX checker and eight PyTorch/ONNX comparisons run on every export. Changing architecture may introduce unsupported operations; the browser remains the final compatibility check.
+The helper exports opset 18 with the explicitly selected legacy exporter (`dynamo=False`) and embedded weights. ONNX checker and at least eight PyTorch/ONNX comparisons run on every export. Supported operations depend on your architecture; the browser remains the final compatibility check.

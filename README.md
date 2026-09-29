@@ -12,7 +12,7 @@ A small **synthetic-font demo** is included: tap **Try font demo** on the [live 
 2. Draw a symbol, choose/take a photo, or use a printed sample.
 3. Inspect the processed input and select **Run model**.
 
-Student workflow: train in Python → export an ONNX file → open the live playground → select that file. Python runs in your course notebook, Colab, or your own computer; the website is already hosted for everyone.
+Bring the PyTorch model you built in class → export an ONNX file → select it in the live playground. This repository provides the exporter and web app. Network design and training belong to your coursework.
 
 Refreshing clears the selection, but your saved file stays in Files/Downloads. See the [phone guide](docs/phone-guide.md) for transferring and finding it. JPEG/PNG is the reliable browser photo fallback.
 
@@ -25,19 +25,7 @@ path = export_for_playground(model, "artifacts/my-ox-v1.onnx")
 
 Start with the [export tutorial](docs/export-tutorial.md) and [phone transfer guide](docs/phone-guide.md). The website also has a short [export & phone walkthrough](https://supertweety.github.io/model-playground/guide.html).
 
-## Train and export
-
-For the course example, follow the [Python training setup](docs/student-guide.md#2-prepare-your-python-training-environment-and-data) first. This environment is for training/exporting your network; students keep using the live website to test it.
-
-```sh
-python python/setup_data.py
-# Add your own photos to data/{train,validation,test}/{O,X}/.
-python python/train.py --epochs 20
-python python/predict.py path/to/new-photo.jpg
-python python/export.py --output artifacts/model.onnx
-```
-
-Read the [student guide](docs/student-guide.md) before splitting photos, and the [teacher guide](docs/teacher-guide.md) for deployment, verification, and classroom setup.
+Read the [student quick start](docs/student-guide.md) for export and browser testing, and the [teacher guide](docs/teacher-guide.md) for deployment and verification.
 
 ## Contract
 
@@ -55,7 +43,7 @@ The site validates metadata and runs trial inference. It cannot verify semantic 
 | Directory | Purpose |
 | --- | --- |
 | `website/` | Static HTML, CSS, JavaScript; the only deployed directory |
-| `python/` | Training, export, prediction, preprocessing and dependencies |
+| `python/` | Reusable ONNX exporter, reference input preprocessing and dependencies |
 | `scripts/` | Integrity-checked runtime download |
 | `tests/` | Python/ONNX/browser parity and interaction checks |
 | `docs/` | Student and teacher guides, contract, verification record |
@@ -69,13 +57,14 @@ Only needed if you want to modify the website or work on its internals. Follow t
 
 ## Verification (maintainers)
 
+Use an isolated [export environment](docs/export-tutorial.md#export-setup), then run:
+
 ```sh
 python -m pip install -r tests/requirements.txt
 python -m playwright install chromium webkit
 python scripts/fetch_runtime.py
 python tests/export_helper.py
 python tests/verify.py
-python tests/training_smoke.py
 ```
 
 Linux browser setup may require `python -m playwright install --with-deps chromium webkit`.

@@ -1,1 +1,1 @@
-"""Model Playground teaching tools (run notebooks from the repository root)."""
+"""ONNX export and input-contract helpers for students' own PyTorch models."""

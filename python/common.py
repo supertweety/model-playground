@@ -1,5 +1,4 @@
-"""Shared preprocessing and checkpoint contract. Class indices never depend on folders."""
-from pathlib import Path
+"""Reference image preprocessing for browser parity and optional export samples."""
 import numpy as np
 from PIL import Image, ImageOps
 from pillow_heif import register_heif_opener
@@ -8,7 +7,6 @@ import torch
 register_heif_opener()
 CONTRACT_VERSION = 'ox-gray64-v1'
 CLASSES = ['O', 'X']
-EXTENSIONS = {'.jpg', '.jpeg', '.png', '.heic', '.heif'}
 
 
 def load_image(path):
@@ -34,17 +32,3 @@ def preprocess_rgba(rgba):
 
 def preprocess(image):
     return torch.from_numpy(preprocess_rgba(np.array(image.convert('RGBA')))[1])
-
-
-def device():
-    return torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
-
-
-def load_checkpoint(path, model):
-    checkpoint = torch.load(path, map_location='cpu', weights_only=True)
-    if checkpoint.get('contract_version') != CONTRACT_VERSION or checkpoint.get('classes') != CLASSES:
-        raise ValueError('Incompatible checkpoint preprocessing version or O/X class order. Retrain.')
-    if checkpoint.get('architecture') != model.ARCHITECTURE:
-        raise ValueError('Checkpoint architecture differs. Retrain after changing the network.')
-    model.load_state_dict(checkpoint['state_dict'])
-    return checkpoint

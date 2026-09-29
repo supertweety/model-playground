@@ -2,7 +2,7 @@
 
 ## Share the live app with students
 
-Give students the [live playground URL](https://supertweety.github.io/model-playground/) and the [student guide](student-guide.md). They can test their exported models without installing or serving the website. Python setup belongs to the training/export part of the assignment.
+Give students the [live playground URL](https://supertweety.github.io/model-playground/) and the [student guide](student-guide.md). Students bring the networks they build in class; this repository supplies only export tools and browser testing, including the prebuilt font demo.
 
 ## Optional: run the website locally
 
@@ -15,15 +15,15 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory website
 
 Open <http://localhost:8000> and keep the server running. Use `python` on Windows. Do not open `index.html` through `file://`. Serving the website needs only Python's standard library; PyTorch is not required.
 
-For training or automated verification, use the [Python environment setup](student-guide.md#2-prepare-your-python-training-environment-and-data). The verified reference environment is Python 3.10 on Apple Silicon with torch 2.7.1 / torchvision 0.22.1. Python 3.10–3.12 is the recommended range; install wheels appropriate to the OS. `pip check` verifies resolved dependency compatibility. On Linux, CPU-only PyTorch avoids a large CUDA installation:
+For export or automated verification, use the [export environment setup](export-tutorial.md#export-setup). The verified reference environment is Python 3.10 on Apple Silicon with torch 2.7.1. Python 3.10–3.12 is the recommended range; install wheels appropriate to the OS. `pip check` verifies resolved dependency compatibility. On Linux, CPU-only PyTorch avoids a large CUDA installation:
 
 ```sh
 python -m pip install --upgrade pip==25.1.1
-python -m pip install --no-deps torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install --no-deps torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -r python/requirements.txt
 ```
 
-The first Linux command downloads only the CPU torch/torchvision wheels; the following requirements install resolves their dependencies from PyPI. Run both commands.
+After upgrading pip, download the CPU torch wheel, then install the requirements to resolve its dependencies from PyPI.
 
 The website has no frontend build step. `python scripts/fetch_runtime.py` prepares the pinned JS, WASM, license and notices under ignored `website/vendor/ort/`. The downloader validates archive and license integrity. Run it when checking out a fresh copy. The site uses single-thread WASM so GitHub Pages does not need special cross-origin isolation headers.
 
@@ -37,10 +37,9 @@ python -m playwright install chromium webkit
 python scripts/fetch_runtime.py
 python tests/export_helper.py
 python tests/verify.py
-python tests/training_smoke.py
 ```
 
-The integration suite uses seeded **untrained** CNNs. Its parity checks do not establish recognition accuracy. It saves screenshots and a numerical/network report under ignored `artifacts/verification/`. The training smoke test generates synthetic plumbing data only and exercises checkpoint selection, evaluation, prediction and export. Never use its scores as assignment results.
+The integration suite uses seeded **untrained** random projections solely to check export and inference. It contains no training loops or assignment network. Its parity checks do not establish recognition accuracy. Screenshots and numerical/network reports go under ignored `artifacts/verification/`.
 
 Manually test a real iPhone/Android phone: choose an ONNX file from Files/Downloads, take a photograph through the camera picker, verify orientation, run inference, clear, replace the model, and refresh. Mobile emulation cannot establish real camera permissions, picker behavior, memory limits or device performance. Test browser HEIC support separately; JPEG/PNG is the fallback.
 
